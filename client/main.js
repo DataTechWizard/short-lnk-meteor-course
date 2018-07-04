@@ -2,9 +2,8 @@ import './main.html'
 import { Meteor } from 'meteor/meteor'
 import React from 'react'
 import ReactDOM from 'react-dom'
-
-import Signup from './../imports/ui/Signup'
+import { AppRouter } from '../imports/routes/AppRouter'
 
 Meteor.startup(() => {
-  ReactDOM.render(<Signup />, document.getElementById('app'))
+  ReactDOM.render(<AppRouter />, document.getElementById('app'))
 })
