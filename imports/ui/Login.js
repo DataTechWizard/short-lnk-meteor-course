@@ -1,35 +1,70 @@
-import React, { Component } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
 import { Meteor } from 'meteor/meteor'
+import { withTracker } from 'meteor/react-meteor-data'
 
-class Login extends Component {
+export class Login extends React.Component {
   constructor (props) {
     super(props)
     this.state = {
-      error: ''
+      error: '',
+      email: '',
+      password: ''
     }
   }
   onSubmit (e) {
+    let { email, password } = this.state
+
     e.preventDefault()
-    let email = this.refs.email.value.trim()
-    let password = this.refs.password.value.trim()
-    Meteor.loginWithPassword({email}, password, (err) => {
-      console.log('signup callback', err)
+
+    this.props.loginWithPassword({ email }, password, (err) => {
+      if (err) {
+        this.setState({ error: 'Unable to login. Check email and password.' })
+      } else {
+        this.setState({ error: '' })
+      }
     })
+  }
+  onEmailChange (e) {
+    this.setState({ email: e.target.value.trim() })
+  }
+  onPasswordChange (e) {
+    this.setState({ password: e.target.value.trim() })
   }
   render () {
     return (
-      <div>
-        <h1>Short Lnk</h1>
-        {this.state.error ? <p>{this.state.error}</p> : undefined}
-        <form onSubmit={this.onSubmit.bind(this)}>
-          <input type='email' ref='email' name='email' placeholder='Email' />
-          <input type='password' ref='password' name='password' placeholder='Password' />
-          <button>Login</button>
-        </form>
-        <Link to='/signup'>Don't have an account?</Link>
+      <div className='boxed-view'>
+        <div className='boxed-view__box'>
+          <h1>Login</h1>
+
+          {this.state.error ? <p>{this.state.error}</p> : undefined}
+
+          <form onSubmit={this.onSubmit.bind(this)} noValidate className='boxed-view__form'>
+            <input type='email' name='email' placeholder='Email' onChange={this.onEmailChange.bind(this)} value={this.state.email} />
+            <input type='password' name='password' placeholder='Password' onChange={this.onPasswordChange.bind(this)} value={this.state.password} />
+            <button className='button'>Login</button>
+          </form>
+
+          <Link to='/signup'>Need an account?</Link>
+        </div>
       </div>
     )
   }
 }
-export default Login
+
+// Login.propTypes = {
+//   loginWithPassword: React.PropTypes.func.isRequired
+// }
+
+// export default createContainer(() => {
+//   return {
+//     loginWithPassword: Meteor.loginWithPassword
+//   }
+// }, Login)
+
+export default withTracker(props => {
+  const loginWithPassword = Meteor.loginWithPassword
+  return {
+    loginWithPassword: loginWithPassword
+  }
+})(Login)
